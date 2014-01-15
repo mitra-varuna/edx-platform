@@ -1050,6 +1050,7 @@ MKTG_URL_LINK_MAP = {
     'WHAT_IS_VERIFIED_CERT': 'verified-certificate',
 }
 
+MKTG_URL_LINK_MAP = {}
 
 ################# Student Verification #################
 VERIFY_STUDENT = {
