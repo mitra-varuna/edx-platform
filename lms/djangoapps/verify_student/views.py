@@ -27,7 +27,7 @@ from shoppingcart.models import Order, CertificateItem
 from shoppingcart.processors.CyberSource import (
     get_signed_purchase_params, get_purchase_endpoint
 )
-from verify_student.models import SoftwareSecurePhotoVerification
+from verify_student.models import SoftwareSecurePhotoVerification, MidcourseReverificationWindow
 import ssencrypt
 
 log = logging.getLogger(__name__)
@@ -374,9 +374,25 @@ class MidCourseReverifyView(View):
             return render_to_response("verify_student/midcourse_photo_reverification.html", context)
 
 def midcourse_reverify_dash(_request):
+    user = _request.user
+    course_enrollment_pairs = []
+    for enrollment in CourseEnrollment.enrollments_for_user(user):
+        try:
+            course_enrollment_pairs.append((course_from_id(enrollment.course_id), enrollment))
+        except ItemNotFoundError:
+            log.error("User {0} enrolled in non-existent course {1}"
+                      .format(user.username, enrollment.course_id))
+    reverify_courses = []
+    reverify_dates = []
+    for (course, enrollment) in course_enrollment_pairs:
+        if MidcourseReverificationWindow.window_open_for_course(course.id):
+            reverify_courses.append(course.display_name)
+            reverify_dates.append(MidcourseReverificationWindow.get_window(course.id).end_date)
+            prompt_midcourse_reverify = True
     context = {
         "user_full_name": _request.user.profile.name,
-        "courses": "yolo",
+        "reverify_courses": reverify_courses,
+        "reverify_dates": reverify_dates,
     }
     return render_to_response("verify_student/midcourse_reverify_dash.html", context)
 
