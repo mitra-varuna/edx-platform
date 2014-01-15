@@ -166,7 +166,9 @@ if Backbone?
       @collection.retrieveAnotherPage(@mode, options, {sort_key: @sortBy}, error)
 
     renderThread: (thread) =>
-      content = $(_.template($("#thread-list-item-template").html())(thread.toJSON()))
+      data = thread.toJSON()
+      _.extend(data, @_listItemViewHelpers())
+      content = $(_.template($("#thread-list-item-template").html())(data))
       if thread.get('subscribed')
         content.addClass("followed")
       if thread.get('endorsed')
@@ -472,4 +474,16 @@ if Backbone?
           error: () =>
             $('input.email-setting').attr('checked','checked')
 
+    _listItemViewHelpers: () =>
+      span_sr_open: '<span class=\"sr\">'
+      span_close: '</span>'
+      _interpolate: (fmt) ->
+        interpolate(fmt, @, true)
+      showVotesCountText: () ->
+        @_interpolate gettext('%(votes_up_count)s %(span_sr_open)svotes%(span_close)s')
+      showCommentsCountText: () ->
+        if this.unread_comments_count > 0
+          @_interpolate gettext('%(comments_count)s %(span_sr_open)scomments (%(unread_comments_count)s unread comments)%(span_close)s')
+        else
+          @_interpolate gettext('%(comments_count)s %(span_sr_open)scomments%(span_close)s')
           

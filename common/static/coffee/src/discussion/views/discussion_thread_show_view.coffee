@@ -141,6 +141,17 @@ if Backbone?
       if el.html()
         el.html(el.html().replace(/&lt;mark&gt;/g, "<mark>").replace(/&lt;\/mark&gt;/g, "</mark>"))
 
+    _viewHelpers: () =>
+      span_vcn_open: '<span class=\"votes-count-number\">'
+      span_sr_open: '<span class=\"sr\">'
+      span_close: '</span>'
+      _interpolate: (fmt) ->
+        interpolate(fmt, @, true)
+      showVoteButtonText: () ->
+        @_interpolate gettext('%(span_vc_open)s%(votes_up_count)s%(span_close)s %(span_sr_open)svotes (click to vote)%(span_close)s')
+      showCoursewareLink: () ->
+        @_interpolate '<a href="%(courseware_url)s">%(courseware_title)s</a>'
+
   class @DiscussionThreadInlineShowView extends DiscussionThreadShowView
     renderTemplate: ->
       @template = DiscussionUtil.getTemplate('_inline_thread_show')
